@@ -33,7 +33,7 @@
     "isomorphic-dompurify": "^2.34.0",
     "multer": "^2.0.2",
     "next": "^15.1.0",
-    "next-auth": "^4.24.10",
+    "next-auth": "^4.24.11",
     "prisma": "^5.20.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

@@ -14,7 +14,7 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' }
       },
       async authorize(credentials) {
-        // Skip auth during build time
+        // Skip auth during build time to prevent db connection errors
         if (process.env.NEXT_PHASE === 'phase-production-build') {
           return null
         }
@@ -24,38 +24,27 @@ export const authOptions: NextAuthOptions = {
         }
 
         try {
-          // Sanitize email input
           const sanitizedEmail = sanitizeEmail(credentials.email)
-          if (!sanitizedEmail) {
-            return null
-          }
+          if (!sanitizedEmail) return null
 
-          // Find user by email
           const user = await prisma.user.findUnique({
             where: { email: sanitizedEmail }
           }) as any
 
-          if (!user || !user.passwordHash) {
-            return null
-          }
+          if (!user || !user.passwordHash) return null
 
-          // Verify password using secure hashing
           const validPassword = await verifyPassword(credentials.password, user.passwordHash)
+          if (!validPassword) return null
 
-          if (!validPassword) {
-            return null
-          }
-
-          // Check if user has admin or content manager role
           if (user.role !== UserRole.ADMIN && user.role !== UserRole.CONTENT_MANAGER) {
             return null
           }
 
-          // Update last login
-          await prisma.user.update({
+          // Fire and forget update (don't await to speed up login)
+          prisma.user.update({
             where: { id: user.id },
             data: { lastLogin: new Date() }
-          })
+          }).catch(console.error)
 
           return {
             id: user.id,
@@ -79,7 +68,6 @@ export const authOptions: NextAuthOptions = {
         token.iat = Math.floor(Date.now() / 1000)
       }
       
-      // Refresh token data periodically for security
       if (trigger === 'update') {
         token.iat = Math.floor(Date.now() / 1000)
       }
@@ -95,62 +83,30 @@ export const authOptions: NextAuthOptions = {
       return session
     },
     async signIn({ user, account }) {
-      // Additional security checks can be added here
       if (account?.provider === 'credentials') {
-        // Only allow admin and content manager roles to sign in
         return user.role === UserRole.ADMIN || user.role === UserRole.CONTENT_MANAGER
       }
       return true
     }
   },
-  // FIX: Explicitly define ALL pages to prevent NextAuth from rendering defaults
+  // VITAL: This prevents NextAuth from trying to render default pages
   pages: {
     signIn: '/auth/signin',
-    signOut: '/auth/signin', // Redirect to signin on signout
+    signOut: '/auth/signin',
     error: '/auth/error',
-    verifyRequest: '/auth/signin', // Prevent default verify page
-    newUser: '/auth/signin' // Prevent default new user page
+    verifyRequest: '/auth/signin',
+    newUser: '/auth/signin'
   },
-  // FIX: Force a theme configuration to avoid default CSS loading
+  // VITAL: This prevents NextAuth from loading default CSS
   theme: {
-    colorScheme: "light",
-    brandColor: "#000000",
-    logo: "",
-    buttonText: ""
+    colorScheme: 'light',
+    brandColor: '#000000',
+    logo: '',
+    buttonText: ''
   },
   session: {
     strategy: 'jwt',
-    maxAge: 8 * 60 * 60, // 8 hours for security
-    updateAge: 2 * 60 * 60, // Update session every 2 hours
-  },
-  jwt: {
-    maxAge: 8 * 60 * 60, // 8 hours
+    maxAge: 8 * 60 * 60,
   },
   secret: process.env.NEXTAUTH_SECRET,
-  cookies: {
-    sessionToken: {
-      name: 'next-auth.session-token',
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 8 * 60 * 60 // 8 hours
-      }
-    }
-  },
-  events: {
-    async signIn({ user, account }) {
-      console.log(`User ${user.email} signed in with ${account?.provider}`)
-    },
-    async signOut({ token }) {
-      console.log(`User signed out: ${token?.email}`)
-    },
-    async session({ session }) {
-      // Log session access for security monitoring
-      if (process.env.NODE_ENV === 'production') {
-        console.log(`Session accessed: ${session.user?.email}`)
-      }
-    }
-  }
 }

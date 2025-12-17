@@ -1,0 +1,213 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String       @id @default(cuid())
+  email        String       @unique
+  name         String
+  passwordHash String?      // Encrypted password hash
+  role         UserRole     @default(USER)
+  permissions  Permission[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  lastLogin    DateTime?
+
+  @@index([role])
+  @@index([lastLogin])
+  @@map("users")
+}
+
+model Product {
+  id           String             @id @default(cuid())
+  name         String
+  description  String
+  category     ProductCategory
+  brand        String
+  diameter     String
+  length       String
+  material     String
+  pressureRating String
+  temperature  String
+  standards    String[]
+  applications String[]
+  basePrice    Float
+  currency     String             @default("USD")
+  pricePerUnit String
+  availability AvailabilityStatus @default(IN_STOCK)
+  images       ProductImage[]
+  documents    ProductDocument[]
+  bulkDiscounts BulkDiscount[]
+  quoteProducts QuoteProduct[]
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  @@index([category])
+  @@index([brand])
+  @@index([material])
+  @@index([availability])
+  @@index([category, availability])
+  @@index([createdAt])
+  @@map("products")
+}
+
+model ProductImage {
+  id        String  @id @default(cuid())
+  url       String
+  alt       String?
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@map("product_images")
+}
+
+model ProductDocument {
+  id        String  @id @default(cuid())
+  name      String
+  url       String
+  type      String
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@map("product_documents")
+}
+
+model QuoteRequest {
+  id            String         @id @default(cuid())
+  customerName  String
+  customerEmail String
+  customerPhone String?
+  company       String?
+  address       String?
+  city          String?
+  state         String?
+  zipCode       String?
+  country       String?
+  message       String?
+  status        QuoteStatus    @default(PENDING)
+  products      QuoteProduct[]
+  submittedAt   DateTime       @default(now())
+  respondedAt   DateTime?
+  response      String?
+
+  @@index([status])
+  @@index([customerEmail])
+  @@index([submittedAt])
+  @@map("quote_requests")
+}
+
+model QuoteProduct {
+  id           String       @id @default(cuid())
+  quoteId      String
+  productId    String
+  quantity     Int
+  notes        String?
+  quote        QuoteRequest @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  product      Product      @relation(fields: [productId], references: [id])
+
+  @@map("quote_products")
+}
+
+model BulkDiscount {
+  id          String  @id @default(cuid())
+  productId   String
+  minQuantity Int
+  discount    Float
+  product     Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("bulk_discounts")
+}
+
+model Media {
+  id        String    @id @default(cuid())
+  filename  String
+  originalName String
+  url       String
+  mimeType  String
+  size      Int
+  type      MediaType
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("media")
+}
+
+model CompanyContent {
+  id            String   @id @default("default")
+  name          String
+  description   String?
+  history       String?
+  mission       String?
+  vision        String?
+  address       String?
+  city          String?
+  state         String?
+  zipCode       String?
+  country       String?
+  phone         String?
+  email         String?
+  website       String?
+  certifications Json?   // Array of certification objects
+  serviceAreas  String[] // Array of service area strings
+  specialties   String[] // Array of specialty strings
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("company_content")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+  CONTENT_MANAGER
+}
+
+enum Permission {
+  MANAGE_PRODUCTS
+  MANAGE_QUOTES
+  MANAGE_USERS
+  MANAGE_MEDIA
+  VIEW_ANALYTICS
+}
+
+enum ProductCategory {
+  STEEL_PIPE
+  PVC_PIPE
+  COPPER_PIPE
+  GALVANIZED_PIPE
+  CAST_IRON_PIPE
+  FLEXIBLE_PIPE
+  SPECIALTY_PIPE
+}
+
+enum AvailabilityStatus {
+  IN_STOCK
+  OUT_OF_STOCK
+  DISCONTINUED
+  SPECIAL_ORDER
+  LOW_STOCK
+}
+
+enum QuoteStatus {
+  PENDING
+  RESPONDED
+  CLOSED
+  CANCELLED
+}
+
+enum MediaType {
+  IMAGE
+  DOCUMENT
+  VIDEO
+  OTHER
+}

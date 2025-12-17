@@ -137,10 +137,14 @@ async function handleGet(req: NextRequest): Promise<NextResponse> {
 async function handlePost(req: NextRequest): Promise<NextResponse> {
   const session = await getServerSession(authOptions)
   
+  // FIX: Extract IP and UserAgent from headers upfront to avoid 'req.ip' type error
+  const clientIP = req.headers.get('x-forwarded-for')?.split(',')[0] || req.headers.get('x-real-ip') || 'unknown'
+  const userAgent = req.headers.get('user-agent') || 'unknown'
+
   if (!session) {
     logSecurityEvent('unauthorized_product_creation_attempt', {
-      ip: req.ip || 'unknown',
-      userAgent: req.headers.get('user-agent') || 'unknown'
+      ip: clientIP, // FIX: Using the extracted variable
+      userAgent: userAgent
     }, 'medium')
     
     return createErrorResponse('Authentication required', 401)
@@ -163,10 +167,6 @@ async function handlePost(req: NextRequest): Promise<NextResponse> {
       }
     )
   }
-  
-  // Get client information for audit logging
-  const clientIP = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown'
-  const userAgent = req.headers.get('user-agent') || 'unknown'
   
   // Create product with secure transaction
   const product = await prisma.$transaction(async (tx) => {

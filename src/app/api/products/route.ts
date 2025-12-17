@@ -167,12 +167,12 @@ async function handlePost(req: NextRequest): Promise<NextResponse> {
   const userAgent = req.headers.get('user-agent') || 'unknown'
   
   // Create product with secure transaction
-  const product = await prisma.$transaction(async (tx: PrismaClient) => {
+  const product = await prisma.$transaction(async (tx) => {
     const newProduct = await tx.product.create({
       data: {
         name: sanitizedData.name!,
         description: sanitizedData.description!,
-        category: sanitizedData.category!,
+        category: sanitizedData.category! as any,
         brand: sanitizedData.brand!,
         diameter: sanitizedData.diameter!,
         length: sanitizedData.length!,
@@ -184,7 +184,7 @@ async function handlePost(req: NextRequest): Promise<NextResponse> {
         basePrice: sanitizedData.basePrice!,
         currency: sanitizedData.currency || 'USD',
         pricePerUnit: sanitizedData.pricePerUnit!,
-        availability: sanitizedData.availability || AvailabilityStatus.IN_STOCK
+        availability: (sanitizedData.availability || AvailabilityStatus.IN_STOCK) as any
       },
       include: {
         images: true,

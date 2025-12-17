@@ -112,7 +112,7 @@ export async function PUT(
     const userAgent = req.headers.get('user-agent') || 'unknown'
     
     // Update product with transaction for audit trail
-    const updatedProduct = await prisma.$transaction(async (tx: PrismaClient) => {
+    const updatedProduct = await prisma.$transaction(async (tx) => {
       // Prepare update data with only non-null/undefined values
       const updateData: any = {}
       

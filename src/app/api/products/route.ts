@@ -2,13 +2,15 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { PrismaClient, UserRole, Permission } from '@prisma/client'
+import { UserRole, Permission } from '@prisma/client'
 import { 
   validateProductData, 
   sanitizeProductData, 
   createAuditLogEntry, 
   formatValidationErrors 
 } from '@/lib/product-validation'
+
+export const dynamic = 'force-dynamic'
 import { 
   createSecureApiHandler, 
   createApiResponse, 

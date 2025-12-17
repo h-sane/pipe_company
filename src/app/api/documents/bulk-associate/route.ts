@@ -4,6 +4,8 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { bulkAssociateDocuments } from '@/lib/document-utils';
 
+export const dynamic = 'force-dynamic'
+
 interface BulkAssociationRequest {
   associations: Array<{
     mediaId: string;

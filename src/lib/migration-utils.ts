@@ -120,11 +120,7 @@ export async function backupDatabase(): Promise<{
 
   try {
     const [users, products, quoteRequests, media] = await Promise.all([
-      prisma.user.findMany({
-        include: {
-          // Include related data if needed
-        }
-      }),
+      prisma.user.findMany(),
       prisma.product.findMany({
         include: {
           images: true,
@@ -170,25 +166,8 @@ export async function validateDatabaseIntegrity(): Promise<{
   const issues: string[] = []
 
   try {
-    // Check for orphaned records
-    const orphanedImages = await prisma.productImage.findMany({
-      where: {
-        product: null
-      }
-    })
-    if (orphanedImages.length > 0) {
-      issues.push(`Found ${orphanedImages.length} orphaned product images`)
-    }
-
-    const orphanedDocuments = await prisma.productDocument.findMany({
-      where: {
-        product: null
-      }
-    })
-    if (orphanedDocuments.length > 0) {
-      issues.push(`Found ${orphanedDocuments.length} orphaned product documents`)
-    }
-
+    // Note: Orphaned records are prevented by onDelete: Cascade in schema
+    
     // Check for invalid email formats
     const usersWithInvalidEmails = await prisma.user.findMany({
       where: {

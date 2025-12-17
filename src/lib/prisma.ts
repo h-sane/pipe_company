@@ -75,13 +75,13 @@ export async function withRetry<T>(
 
 // Safe transaction wrapper
 export async function safeTransaction<T>(
-  callback: (prisma: PrismaClient) => Promise<T>
+  callback: (prisma: Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>) => Promise<T>
 ): Promise<T> {
   return withRetry(async () => {
     return prisma.$transaction(callback, {
       maxWait: 5000, // 5 seconds
       timeout: 10000, // 10 seconds
-    })
+    }) as Promise<T>
   })
 }
 

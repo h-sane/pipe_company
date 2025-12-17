@@ -6,6 +6,8 @@ import { readFile } from 'fs/promises';
 import { join } from 'path';
 import { existsSync } from 'fs';
 
+export const dynamic = 'force-dynamic'
+
 const UPLOAD_DIR = join(process.cwd(), 'public', 'uploads');
 
 export async function GET(

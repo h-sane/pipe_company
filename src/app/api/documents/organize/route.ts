@@ -3,6 +3,9 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { organizeDocumentsByProduct, organizeGeneralDocuments, DOCUMENT_CATEGORIES } from '@/lib/document-utils';
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     // Check authentication

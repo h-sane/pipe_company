@@ -103,9 +103,20 @@ export const authOptions: NextAuthOptions = {
       return true
     }
   },
+  // FIX: Explicitly define ALL pages to prevent NextAuth from rendering defaults
   pages: {
     signIn: '/auth/signin',
+    signOut: '/auth/signin', // Redirect to signin on signout
     error: '/auth/error',
+    verifyRequest: '/auth/signin', // Prevent default verify page
+    newUser: '/auth/signin' // Prevent default new user page
+  },
+  // FIX: Force a theme configuration to avoid default CSS loading
+  theme: {
+    colorScheme: "light",
+    brandColor: "#000000",
+    logo: "",
+    buttonText: ""
   },
   session: {
     strategy: 'jwt',
@@ -129,13 +140,13 @@ export const authOptions: NextAuthOptions = {
     }
   },
   events: {
-    async signIn({ user, account, isNewUser }) {
+    async signIn({ user, account }) {
       console.log(`User ${user.email} signed in with ${account?.provider}`)
     },
     async signOut({ token }) {
       console.log(`User signed out: ${token?.email}`)
     },
-    async session({ session, token }) {
+    async session({ session }) {
       // Log session access for security monitoring
       if (process.env.NODE_ENV === 'production') {
         console.log(`Session accessed: ${session.user?.email}`)

@@ -32,7 +32,8 @@ export default withAuth(
     
     // Rate limiting for API routes
     if (req.nextUrl.pathname.startsWith('/api/')) {
-      const clientIp = req.ip || req.headers.get('x-forwarded-for') || 'unknown'
+      // FIX: Replaced req.ip with header check to satisfy TypeScript and Next.js 15 compatibility
+      const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0] || req.headers.get('x-real-ip') || 'unknown'
       const rateLimit = checkRateLimit(clientIp, {
         windowMs: 15 * 60 * 1000, // 15 minutes
         maxRequests: 100 // 100 requests per 15 minutes

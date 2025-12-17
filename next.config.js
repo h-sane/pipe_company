@@ -10,6 +10,14 @@ const nextConfig = {
     contentDispositionType: 'attachment',
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
+  // Disable static page generation for API routes
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '2mb',
+    },
+  },
+  // Skip static optimization for all pages
+  output: 'standalone',
   // Enable compression
   compress: true,
   // Optimize production builds

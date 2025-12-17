@@ -3,16 +3,22 @@ import { authOptions } from '@/lib/auth'
 
 export const dynamic = 'force-dynamic'
 
-// 1. We spread the existing options
-// 2. We EXPLICITLY overwrite the 'pages' config here to force the fix
 const handler = NextAuth({
   ...authOptions,
+  // 1. Force use of custom pages
   pages: {
     signIn: '/auth/signin',
     signOut: '/auth/signin',
     error: '/auth/error',
     verifyRequest: '/auth/signin',
     newUser: '/auth/signin'
+  },
+  // 2. FORCE a custom theme to prevent loading default-stylesheet.css
+  theme: {
+    colorScheme: 'light',
+    brandColor: '#000000',
+    logo: '',
+    buttonText: ''
   }
 })
 

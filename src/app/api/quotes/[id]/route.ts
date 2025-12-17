@@ -227,7 +227,7 @@ export async function DELETE(
     const userAgent = req.headers.get('user-agent') || 'unknown'
     
     // Delete quote with transaction
-    await prisma.$transaction(async (tx: PrismaClient) => {
+    await prisma.$transaction(async (tx) => {
       // Delete quote products first (cascade should handle this, but being explicit)
       await tx.quoteProduct.deleteMany({
         where: { quoteId: params.id }

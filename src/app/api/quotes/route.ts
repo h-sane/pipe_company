@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
     }
     
     // Create quote request with transaction
-    const quoteRequest = await prisma.$transaction(async (tx: PrismaClient) => {
+    const quoteRequest = await prisma.$transaction(async (tx) => {
       const newQuote = await tx.quoteRequest.create({
         data: {
           customerName: sanitizedData.customerName,

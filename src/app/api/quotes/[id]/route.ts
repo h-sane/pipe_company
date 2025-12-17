@@ -127,7 +127,7 @@ export async function PUT(
     const userAgent = req.headers.get('user-agent') || 'unknown'
     
     // Update quote with transaction
-    const updatedQuote = await prisma.$transaction(async (tx: PrismaClient) => {
+    const updatedQuote = await prisma.$transaction(async (tx) => {
       const updateData: any = {}
       
       if (status) {

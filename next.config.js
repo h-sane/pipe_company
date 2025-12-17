@@ -22,10 +22,18 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: false,
   },
-  // swcMinify and optimizeFonts removed as they are defaults in Next.js 15
   compress: true,
   reactStrictMode: true,
-  // Configure caching headers
+  // FIX: Webpack config to ignore the missing NextAuth CSS file on server build
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        './default-stylesheet.css': false,
+      }
+    }
+    return config
+  },
   async headers() {
     return [
       {

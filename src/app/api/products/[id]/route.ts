@@ -33,11 +33,13 @@ const AvailabilityStatus = {
 // GET /api/products/[id] - Get single product
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
+    
     const product = await prisma.product.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         images: true,
         documents: true,
@@ -62,7 +64,7 @@ export async function GET(
 // PUT /api/products/[id] - Update product (admin only)
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -78,9 +80,11 @@ export async function PUT(
     
     const body = await req.json()
     
+    const { id } = await params;
+    
     // Check if product exists
     const existingProduct = await prisma.product.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         images: true,
         documents: true,
@@ -137,7 +141,7 @@ export async function PUT(
       
       // Update the product
       const product = await tx.product.update({
-        where: { id: params.id },
+        where: { id },
         data: updateData,
         include: {
           images: true,
@@ -150,7 +154,7 @@ export async function PUT(
       if (sanitizedData.bulkDiscounts && Array.isArray(sanitizedData.bulkDiscounts)) {
         // Delete existing bulk discounts
         await tx.bulkDiscount.deleteMany({
-          where: { productId: params.id }
+          where: { productId: id }
         })
         
         // Create new bulk discounts (sorted by minQuantity)
@@ -158,7 +162,7 @@ export async function PUT(
           const sortedDiscounts = sanitizedData.bulkDiscounts.sort((a, b) => a.minQuantity - b.minQuantity)
           await tx.bulkDiscount.createMany({
             data: sortedDiscounts.map((discount: any) => ({
-              productId: params.id,
+              productId: id,
               minQuantity: discount.minQuantity,
               discount: discount.discount
             }))
@@ -168,7 +172,7 @@ export async function PUT(
       
       // Create audit log entry
       const auditEntry = createAuditLogEntry(
-        params.id,
+        id,
         'UPDATE',
         session.user.id,
         existingProduct,
@@ -195,7 +199,7 @@ export async function PUT(
 // DELETE /api/products/[id] - Delete product (admin only)
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -209,9 +213,11 @@ export async function DELETE(
       return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 })
     }
     
+    const { id } = await params;
+    
     // Check if product exists
     const existingProduct = await prisma.product.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         quoteProducts: true
       }
@@ -235,12 +241,12 @@ export async function DELETE(
     
     // Delete product (cascade will handle related records)
     await prisma.product.delete({
-      where: { id: params.id }
+      where: { id }
     })
     
     // Create audit log entry
     const auditEntry = createAuditLogEntry(
-      params.id,
+      id,
       'DELETE',
       session.user.id,
       existingProduct,

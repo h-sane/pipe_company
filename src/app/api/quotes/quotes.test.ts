@@ -185,7 +185,7 @@ describe('Quote API Routes', () => {
         })
       })
 
-      const response = await PUT_QUOTE(request, { params: { id: 'quote1' } })
+      const response = await PUT_QUOTE(request, { params: Promise.resolve({ id: 'quote1' }) })
       const data = await response.json()
 
       expect(response.status).toBe(200)
@@ -205,7 +205,7 @@ describe('Quote API Routes', () => {
         })
       })
 
-      const response = await PUT_QUOTE(request, { params: { id: 'quote1' } })
+      const response = await PUT_QUOTE(request, { params: Promise.resolve({ id: 'quote1' }) })
 
       expect(response.status).toBe(400)
     })

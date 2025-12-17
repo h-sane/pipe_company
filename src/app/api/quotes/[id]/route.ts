@@ -37,7 +37,7 @@ export async function GET(
     const { id } = await params;
     
     const quote = await prisma.quoteRequest.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         products: {
           include: {
@@ -76,7 +76,7 @@ export async function GET(
 // PUT /api/quotes/[id] - Update quote status and response (admin only)
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -109,9 +109,11 @@ export async function PUT(
       )
     }
     
+    const { id } = await params;
+    
     // Get current quote for audit trail
     const currentQuote = await prisma.quoteRequest.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         products: {
           include: {
@@ -147,7 +149,7 @@ export async function PUT(
       }
       
       const updated = await tx.quoteRequest.update({
-        where: { id: params.id },
+        where: { id },
         data: updateData,
         include: {
           products: {
@@ -199,7 +201,7 @@ export async function PUT(
 // DELETE /api/quotes/[id] - Delete quote (admin only)
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -213,9 +215,11 @@ export async function DELETE(
       return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 })
     }
     
+    const { id } = await params;
+    
     // Get current quote for audit trail
     const currentQuote = await prisma.quoteRequest.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         products: true
       }
@@ -233,17 +237,17 @@ export async function DELETE(
     await prisma.$transaction(async (tx) => {
       // Delete quote products first (cascade should handle this, but being explicit)
       await tx.quoteProduct.deleteMany({
-        where: { quoteId: params.id }
+        where: { quoteId: id }
       })
       
       // Delete the quote
       await tx.quoteRequest.delete({
-        where: { id: params.id }
+        where: { id }
       })
       
       // Create audit log entry
       const auditEntry = createQuoteAuditEntry(
-        params.id,
+        id,
         'DELETE',
         session.user.id,
         currentQuote,

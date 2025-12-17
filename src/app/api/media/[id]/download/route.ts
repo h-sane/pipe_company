@@ -12,7 +12,7 @@ const UPLOAD_DIR = join(process.cwd(), 'public', 'uploads');
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Check authentication for document downloads
@@ -21,9 +21,11 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const { id } = await params;
+
     // Find media record
     const media = await prisma.media.findUnique({
-      where: { id: params.id }
+      where: { id }
     });
 
     if (!media) {

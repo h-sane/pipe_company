@@ -10,13 +10,21 @@ export const dynamic = 'force-dynamic'
 
 const UPLOAD_DIR = join(process.cwd(), 'public', 'uploads');
 
+// 1. Updated Type Definition for Next.js 15
+type RouteParams = {
+  params: Promise<{ id: string }>
+}
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: RouteParams // 2. Applied Promise Type
 ) {
   try {
+    // 3. Await the params before using properties
+    const { id } = await params;
+
     const media = await prisma.media.findUnique({
-      where: { id: params.id }
+      where: { id } // Used destructured 'id'
     });
 
     if (!media) {
@@ -36,9 +44,12 @@ export async function GET(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: RouteParams // Applied Promise Type here too
 ) {
   try {
+    // Await params here as well
+    const { id } = await params;
+
     // Check authentication
     const session = await getServerSession(authOptions);
     if (!session?.user) {
@@ -57,7 +68,7 @@ export async function DELETE(
 
     // Find media record
     const media = await prisma.media.findUnique({
-      where: { id: params.id }
+      where: { id } // Used destructured 'id'
     });
 
     if (!media) {
@@ -81,8 +92,9 @@ export async function DELETE(
     }
 
     // Delete from database
+    const mediaId = id; // Explicitly capturing id for clarity
     await prisma.media.delete({
-      where: { id: params.id }
+      where: { id: mediaId }
     });
 
     return NextResponse.json({ message: 'Media deleted successfully' });

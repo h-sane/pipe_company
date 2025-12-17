@@ -20,7 +20,7 @@ const QuoteStatus = {
 // GET /api/quotes/[id] - Get specific quote (admin only)
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -33,6 +33,8 @@ export async function GET(
     if (session.user.role !== 'ADMIN' && session.user.role !== 'CONTENT_MANAGER') {
       return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 })
     }
+
+    const { id } = await params;
     
     const quote = await prisma.quoteRequest.findUnique({
       where: { id: params.id },

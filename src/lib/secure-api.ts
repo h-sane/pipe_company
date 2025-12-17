@@ -69,7 +69,9 @@ export function createSecureApiHandler(
       
       // Rate limiting
       if (config.rateLimit) {
-        const clientIp = req.ip || req.headers.get('x-forwarded-for') || 'unknown'
+        // FIX: Replaced req.ip with header check to satisfy TypeScript
+        const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0] || req.headers.get('x-real-ip') || 'unknown'
+        
         const rateLimit = checkRateLimit(clientIp, config.rateLimit)
         
         if (!rateLimit.allowed) {

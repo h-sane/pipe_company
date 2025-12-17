@@ -18,6 +18,13 @@ const nextConfig = {
   },
   // Skip static optimization for all pages
   output: 'standalone',
+  // Disable page data collection during build
+  typescript: {
+    ignoreBuildErrors: false,
+  },
+  eslint: {
+    ignoreDuringBuilds: false,
+  },
   // Enable compression
   compress: true,
   // Optimize production builds

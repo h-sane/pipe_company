@@ -14,6 +14,11 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' }
       },
       async authorize(credentials) {
+        // Skip auth during build time
+        if (process.env.NEXT_PHASE === 'phase-production-build') {
+          return null
+        }
+
         if (!credentials?.email || !credentials?.password) {
           return null
         }

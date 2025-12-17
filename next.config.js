@@ -10,29 +10,21 @@ const nextConfig = {
     contentDispositionType: 'attachment',
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
-  // Disable static page generation for API routes
   experimental: {
     serverActions: {
       bodySizeLimit: '2mb',
     },
   },
-  // Skip static optimization for all pages
   output: 'standalone',
-  // Disable page data collection during build
   typescript: {
     ignoreBuildErrors: false,
   },
   eslint: {
     ignoreDuringBuilds: false,
   },
-  // Enable compression
+  // swcMinify and optimizeFonts removed as they are defaults in Next.js 15
   compress: true,
-  // Optimize production builds
-  swcMinify: true,
-  // Enable React strict mode for better performance
   reactStrictMode: true,
-  // Optimize fonts
-  optimizeFonts: true,
   // Configure caching headers
   async headers() {
     return [

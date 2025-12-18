@@ -17,13 +17,13 @@ The system follows a modern three-tier architecture with clear separation of con
 **Backend Layer:**
 - Next.js API routes for serverless backend functionality
 - Prisma ORM for type-safe database operations
-- NextAuth.js for authentication and session management
-- Cloudinary for image storage and optimization
+- Custom cookie-based authentication for MVP simplicity
+- Local file storage for media with optimization utilities
 
 **Data Layer:**
-- PostgreSQL database for structured product and customer data
-- Redis for session storage and caching (optional for enhanced performance)
-- File system or cloud storage for static assets and documents
+- PostgreSQL database for structured product and customer data (via Prisma)
+- Cookie-based session storage for MVP authentication
+- Local file system storage for media assets and documents
 
 ## Components and Interfaces
 

@@ -31,7 +31,7 @@ export async function updateUserActivity(userId: string, activity: string) {
  */
 export async function forceLogout(userId: string, reason?: string) {
   try {
-    console.log(`Force logout initiated for user: ${userId}`)
+    console.log(`Force logout initiated for user: ${userId}${reason ? ` - Reason: ${reason}` : ''}`)
     return { success: true, message: 'User logged out successfully' }
   } catch (error) {
     console.error('Error during force logout:', error)

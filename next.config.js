@@ -24,7 +24,7 @@ const nextConfig = {
   },
   compress: true,
   reactStrictMode: true,
-  // FIX: Webpack config to ignore the missing NextAuth CSS file on server build
+  // CRITICAL FIX: This tells Webpack to ignore the specific missing file that causes the crash
   webpack: (config, { isServer }) => {
     if (isServer) {
       config.resolve.alias = {

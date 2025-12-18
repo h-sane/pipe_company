@@ -1,21 +1,17 @@
-import { NextResponse } from "next/server";
-import { authOptions } from "@/lib/auth";
+import { NextResponse } from 'next/server';
 
-// Force this route to be dynamic to skip static generation
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
-// Helper function to load NextAuth only at runtime
-async function handleRequest(req: any, ctx: any) {
-  // DYNAMIC IMPORT: This prevents the library from loading during build
-  const { default: NextAuth } = await import("next-auth");
+// 1. We define the handler to load everything dynamically.
+// This ensures the build server sees this file as "empty" of dependencies.
+const handler = async (req: Request, ctx: any) => {
+  // 2. We import the options AND the library only when a request actually happens
+  const { default: NextAuth } = await import('next-auth');
+  const { authOptions } = await import('@/lib/auth');
+  
+  // 3. Initialize and execute
+  // @ts-ignore
   return NextAuth(authOptions)(req, ctx);
 }
 
-// Export individual handlers instead of the shorthand
-export async function GET(req: any, ctx: any) {
-  return handleRequest(req, ctx);
-}
-
-export async function POST(req: any, ctx: any) {
-  return handleRequest(req, ctx);
-}
+export { handler as GET, handler as POST };

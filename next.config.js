@@ -24,15 +24,15 @@ const nextConfig = {
   },
   compress: true,
   reactStrictMode: true,
-  // CRITICAL FIX: This tells Webpack to ignore the specific missing file that causes the crash
+  // FIX: More aggressive webpack ignore rule
   webpack: (config, { isServer }) => {
     if (isServer) {
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        './default-stylesheet.css': false,
-      }
+      // 1. Ignore the specific relative import used by NextAuth
+      config.resolve.alias['./default-stylesheet.css'] = false;
+      // 2. Also try to ignore it by absolute resolution to be safe
+      config.resolve.alias['default-stylesheet.css'] = false;
     }
-    return config
+    return config;
   },
   async headers() {
     return [

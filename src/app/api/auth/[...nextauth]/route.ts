@@ -1,18 +1,13 @@
-import { NextResponse } from 'next/server'
-import NextAuth from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import NextAuth from "next-auth"
+import { authOptions } from "@/lib/auth"
 
 export const dynamic = 'force-dynamic'
 
-let handler
-
-try {
-  // Try to initialize NextAuth
-  handler = NextAuth(authOptions)
-} catch (error) {
-  // If it crashes during build (ENOENT), we ignore it and use a dummy handler
-  console.warn('NextAuth init failed (expected during build):', error)
-  handler = () => NextResponse.json({ error: 'Auth not available during build' })
+// FIX: We define the handler as a wrapper function.
+// This prevents NextAuth from initializing during the build.
+// It will only initialize when a real request comes in.
+const handler = async (req: any, ctx: any) => {
+  return await NextAuth(authOptions)(req, ctx)
 }
 
 export { handler as GET, handler as POST }

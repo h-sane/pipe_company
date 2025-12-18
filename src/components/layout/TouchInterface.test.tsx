@@ -277,8 +277,8 @@ describe('TouchInterface Components', () => {
             const { container } = render(
               <div data-testid="touch-interface-container">
                 <TouchButton 
-                  size={config.buttonSize}
-                  variant={config.buttonVariant}
+                  size={config.buttonSize as 'sm' | 'md' | 'lg'}
+                  variant={config.buttonVariant as 'primary' | 'secondary' | 'ghost'}
                   disabled={config.disabled}
                   onClick={() => {}}
                   data-testid="test-button"
@@ -287,7 +287,7 @@ describe('TouchInterface Components', () => {
                 </TouchButton>
                 
                 <TouchInput 
-                  type={config.inputType}
+                  type={config.inputType as 'text' | 'email' | 'password' | 'number' | 'tel'}
                   label={config.inputLabel || undefined}
                   disabled={config.disabled}
                   data-testid="test-input"
@@ -296,7 +296,7 @@ describe('TouchInterface Components', () => {
                 <TouchToggle 
                   checked={false}
                   onChange={() => {}}
-                  size={config.toggleSize}
+                  size={config.toggleSize as 'sm' | 'md' | 'lg'}
                   label={config.toggleLabel || undefined}
                   disabled={config.disabled}
                 />

@@ -162,7 +162,7 @@ describe('Media Gallery Property Tests', () => {
             mainImage.classList.contains('transition-transform')
           )
           
-          return imageClickable && hasZoomClasses
+          return Boolean(imageClickable && hasZoomClasses)
         }
       ),
       { numRuns: 100 }
@@ -220,7 +220,7 @@ describe('Media Gallery Property Tests', () => {
           const responsiveImages = container.querySelectorAll('img[class*="object-cover"]')
           const imagesAreResponsive = responsiveImages.length > 0
           
-          return mainImageHasAlt && mainImageHasCorrectDimensions && imagesAreResponsive
+          return Boolean(mainImageHasAlt && mainImageHasCorrectDimensions && imagesAreResponsive)
         }
       ),
       { numRuns: 100 }

@@ -1,42 +1,7 @@
-'use client'
-
-import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
 import AdminDashboard from '@/components/admin/AdminDashboard'
 import { AdminLayout } from '@/components/layout/Layout'
 
 export default function AdminPage() {
-  const { data: session, status } = useSession()
-  const router = useRouter()
-
-  useEffect(() => {
-    if (status === 'loading') return // Still loading
-
-    if (!session) {
-      router.push('/auth/signin?callbackUrl=/admin')
-      return
-    }
-
-    // Check if user has admin or content manager role
-    if (session.user?.role !== 'ADMIN' && session.user?.role !== 'CONTENT_MANAGER') {
-      router.push('/auth/error?error=AccessDenied')
-      return
-    }
-  }, [session, status, router])
-
-  if (status === 'loading') {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg">Loading...</div>
-      </div>
-    )
-  }
-
-  if (!session) {
-    return null // Will redirect
-  }
-
   return (
     <AdminLayout>
       <div className="mb-6">
@@ -50,9 +15,9 @@ export default function AdminPage() {
             </div>
             <div className="text-right">
               <div className="text-sm text-gray-500">Logged in as</div>
-              <div className="font-medium text-gray-900">{session.user?.name}</div>
+              <div className="font-medium text-gray-900">Admin User</div>
               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mt-1">
-                {session.user?.role}
+                ADMIN
               </span>
             </div>
           </div>

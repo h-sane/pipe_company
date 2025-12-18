@@ -1,70 +1,31 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { NextRequest, NextResponse } from 'next/server'
+import { getSession } from '@/lib/auth-helper'
+import { prisma } from '@/lib/prisma'
 
-export const dynamic = 'force-dynamic'
-
-export async function GET(request: NextRequest) {
+// GET /api/documents - List documents (admin only)
+export async function GET(req: NextRequest) {
   try {
-    // Check authentication for document access
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const session = getSession(req)
+    if (!session || session.user.role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-
-    const { searchParams } = new URL(request.url);
-    const productId = searchParams.get('productId');
-    const category = searchParams.get('category'); // 'technical', 'specification', 'manual', etc.
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '20');
-    const skip = (page - 1) * limit;
-
-    // Build where clause for filtering
-    const where: any = {
-      type: 'DOCUMENT'
-    };
-
-    // If productId is specified, get documents for that product
-    if (productId) {
-      const productDocuments = await prisma.productDocument.findMany({
-        where: { productId },
-        include: {
-          product: {
-            select: { name: true, category: true }
-          }
-        },
-        orderBy: { createdAt: 'desc' },
-        skip,
-        take: limit
-      });
-
-      const total = await prisma.productDocument.count({
-        where: { productId }
-      });
-
-      return NextResponse.json({
-        documents: productDocuments,
-        pagination: {
-          page,
-          limit,
-          total,
-          pages: Math.ceil(total / limit)
-        }
-      });
-    }
-
-    // Get general media documents
+    
+    const { searchParams } = new URL(req.url)
+    const page = parseInt(searchParams.get('page') || '1')
+    const limit = parseInt(searchParams.get('limit') || '10')
+    
+    const skip = (page - 1) * limit
+    
     const [documents, total] = await Promise.all([
       prisma.media.findMany({
-        where,
-        orderBy: { createdAt: 'desc' },
+        where: { type: 'DOCUMENT' },
         skip,
-        take: limit
+        take: limit,
+        orderBy: { createdAt: 'desc' }
       }),
-      prisma.media.count({ where })
-    ]);
-
+      prisma.media.count({ where: { type: 'DOCUMENT' } })
+    ])
+    
     return NextResponse.json({
       documents,
       pagination: {
@@ -73,95 +34,39 @@ export async function GET(request: NextRequest) {
         total,
         pages: Math.ceil(total / limit)
       }
-    });
-
+    })
   } catch (error) {
-    console.error('Document fetch error:', error);
+    console.error('Error fetching documents:', error)
     return NextResponse.json(
       { error: 'Failed to fetch documents' },
       { status: 500 }
-    );
+    )
   }
 }
 
-export async function POST(request: NextRequest) {
+// POST /api/documents - Create document (admin only)
+export async function POST(req: NextRequest) {
   try {
-    // Check authentication and permissions
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const session = getSession(req)
+    if (!session || session.user.role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email! },
-      select: { role: true, permissions: true }
-    });
-
-    if (!user || (user.role !== 'ADMIN' && user.role !== 'CONTENT_MANAGER' && !user.permissions.includes('MANAGE_MEDIA'))) {
-      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
-    }
-
-    const body = await request.json();
-    const { mediaId, productId, category, description } = body;
-
-    if (!mediaId || !productId) {
-      return NextResponse.json({ 
-        error: 'Media ID and Product ID are required' 
-      }, { status: 400 });
-    }
-
-    // Verify media exists and is a document
-    const media = await prisma.media.findUnique({
-      where: { id: mediaId }
-    });
-
-    if (!media || media.type !== 'DOCUMENT') {
-      return NextResponse.json({ 
-        error: 'Invalid media ID or media is not a document' 
-      }, { status: 400 });
-    }
-
-    // Verify product exists
-    const product = await prisma.product.findUnique({
-      where: { id: productId }
-    });
-
-    if (!product) {
-      return NextResponse.json({ 
-        error: 'Product not found' 
-      }, { status: 404 });
-    }
-
-    // Create product document association
-    const productDocument = await prisma.productDocument.create({
+    
+    const data = await req.json()
+    
+    const document = await prisma.media.create({
       data: {
-        name: media.originalName,
-        url: media.url,
-        type: category || 'general',
-        productId,
-        // Note: We could extend the schema to link to media table if needed
-      },
-      include: {
-        product: {
-          select: { name: true, category: true }
-        }
+        ...data,
+        type: 'DOCUMENT'
       }
-    });
-
-    return NextResponse.json({
-      id: productDocument.id,
-      name: productDocument.name,
-      url: productDocument.url,
-      type: productDocument.type,
-      product: productDocument.product,
-      createdAt: productDocument.createdAt
-    });
-
+    })
+    
+    return NextResponse.json(document, { status: 201 })
   } catch (error) {
-    console.error('Document association error:', error);
+    console.error('Error creating document:', error)
     return NextResponse.json(
-      { error: 'Failed to associate document with product' },
+      { error: 'Failed to create document' },
       { status: 500 }
-    );
+    )
   }
 }

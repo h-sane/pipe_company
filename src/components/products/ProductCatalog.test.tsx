@@ -142,14 +142,14 @@ describe('Product Catalog Organization Property Tests', () => {
         productGenerator,
         (product) => {
           // Property: All required fields should be present and valid
-          const hasValidId = product.id && product.id.length > 0
-          const hasValidName = product.name && product.name.trim().length > 0
-          const hasValidBrand = product.brand && product.brand.trim().length > 0
-          const hasValidMaterial = product.material && product.material.trim().length > 0
+          const hasValidId = Boolean(product.id && product.id.length > 0)
+          const hasValidName = Boolean(product.name && product.name.trim().length > 0)
+          const hasValidBrand = Boolean(product.brand && product.brand.trim().length > 0)
+          const hasValidMaterial = Boolean(product.material && product.material.trim().length > 0)
           const hasValidCategory = Object.values(ProductCategory).includes(product.category)
           const hasValidAvailability = Object.values(AvailabilityStatus).includes(product.availability)
           const hasValidPrice = typeof product.basePrice === 'number' && product.basePrice > 0
-          const hasValidPriceUnit = product.pricePerUnit && product.pricePerUnit.length > 0
+          const hasValidPriceUnit = Boolean(product.pricePerUnit && product.pricePerUnit.length > 0)
           
           // Property: Images array should be valid (can be empty)
           const hasValidImages = Array.isArray(product.images)

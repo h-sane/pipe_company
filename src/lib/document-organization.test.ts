@@ -268,10 +268,10 @@ describe('Document Organization Property Tests', () => {
           
           // Property 3: Category should have required fields
           const hasRequiredFields = category ? 
-            category.name && 
+            Boolean(category.name && 
             category.description && 
             Array.isArray(category.allowedTypes) &&
-            category.allowedTypes.length > 0 : true
+            category.allowedTypes.length > 0) : true
           
           return categoryExists && correctId && hasRequiredFields
         }

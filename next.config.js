@@ -1,5 +1,3 @@
-const path = require('path');
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
@@ -12,8 +10,6 @@ const nextConfig = {
     contentDispositionType: 'attachment',
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
-  // FIX 1: Treat next-auth as an external package to avoid bundling issues
-  serverExternalPackages: ['next-auth'],
   experimental: {
     serverActions: {
       bodySizeLimit: '2mb',
@@ -28,16 +24,6 @@ const nextConfig = {
   },
   compress: true,
   reactStrictMode: true,
-  // FIX 2: Force Webpack to use our empty CSS file instead of the missing one
-  webpack: (config, { isServer }) => {
-    if (isServer) {
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        './default-stylesheet.css': path.resolve(__dirname, 'src/empty.css'),
-      };
-    }
-    return config;
-  },
   async headers() {
     return [
       {

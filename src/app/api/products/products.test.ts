@@ -327,7 +327,7 @@ describe('Product Update Property Tests', () => {
           const updatedData = { ...editFormData }
           Object.entries(editData).forEach(([key, value]) => {
             if (value !== null && value !== undefined) {
-              updatedData[key] = value
+              (updatedData as any)[key] = value
             }
           })
           
@@ -363,19 +363,19 @@ describe('Product Update Property Tests', () => {
           // Property 1: All edited fields should reflect the new values (only for valid, non-null edits)
           const editsApplied = Object.entries(editData).every(([key, value]) => {
             if (value === null || value === undefined) return true
-            return updatedProduct[key] === value
+            return (updatedProduct as any)[key] === value
           })
           
           // Property 2: Non-edited fields should remain unchanged
           const nonEditedFieldsPreserved = Object.keys(existingProduct).every(key => {
-            if (editData.hasOwnProperty(key) && editData[key] !== null && editData[key] !== undefined) return true
+            if (editData.hasOwnProperty(key) && (editData as any)[key] !== null && (editData as any)[key] !== undefined) return true
             if (key === 'updatedAt') return true // This field is expected to change
             
             // For arrays and objects, use deep comparison
-            if (Array.isArray(existingProduct[key])) {
-              return JSON.stringify(existingProduct[key]) === JSON.stringify(updatedProduct[key])
+            if (Array.isArray((existingProduct as any)[key])) {
+              return JSON.stringify((existingProduct as any)[key]) === JSON.stringify((updatedProduct as any)[key])
             }
-            return existingProduct[key] === updatedProduct[key]
+            return (existingProduct as any)[key] === (updatedProduct as any)[key]
           })
           
           // Property 3: ID and createdAt should never change during edits
@@ -416,10 +416,10 @@ describe('Product Update Property Tests', () => {
           const otherFieldsPreserved = Object.keys(originalProduct).every(key => {
             if (key === 'updatedAt' || key === 'availability') return true
             // For deep equality comparison of arrays and objects
-            if (Array.isArray(originalProduct[key]) && Array.isArray(updatedProduct[key])) {
-              return JSON.stringify(originalProduct[key]) === JSON.stringify(updatedProduct[key])
+            if (Array.isArray((originalProduct as any)[key]) && Array.isArray((updatedProduct as any)[key])) {
+              return JSON.stringify((originalProduct as any)[key]) === JSON.stringify((updatedProduct as any)[key])
             }
-            return updatedProduct[key] === originalProduct[key]
+            return (updatedProduct as any)[key] === (originalProduct as any)[key]
           })
           
           return availabilityUpdated && otherFieldsPreserved
@@ -481,13 +481,14 @@ describe('Product Update Property Tests', () => {
           }
           
           // Property: Required fields should never be null or empty
-          const requiredFieldsValid = 
+          const requiredFieldsValid = Boolean(
             updatedProduct.name && updatedProduct.name.trim().length > 0 &&
             typeof updatedProduct.basePrice === 'number' && 
             !isNaN(updatedProduct.basePrice) && 
             updatedProduct.basePrice > 0 &&
             Object.values(ProductCategory).includes(updatedProduct.category) &&
             Object.values(AvailabilityStatus).includes(updatedProduct.availability)
+          )
           
           // Property: ID should never change during updates
           const idPreserved = updatedProduct.id === originalProduct.id
@@ -718,10 +719,10 @@ describe('Product Update Property Tests', () => {
               const otherFieldsPreserved = Object.keys(product).every(key => {
                 if (key === 'availability' || key === 'updatedAt') return true
                 // For arrays and objects, use deep comparison
-                if (Array.isArray(product[key])) {
-                  return JSON.stringify(product[key]) === JSON.stringify(updatedProduct[key])
+                if (Array.isArray((product as any)[key])) {
+                  return JSON.stringify((product as any)[key]) === JSON.stringify((updatedProduct as any)[key])
                 }
-                return product[key] === updatedProduct[key]
+                return (product as any)[key] === (updatedProduct as any)[key]
               })
               
               return availabilityUpdated && timestampCorrect && otherFieldsPreserved

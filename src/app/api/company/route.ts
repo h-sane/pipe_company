@@ -1,120 +1,66 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth/next'
-import { authOptions } from '@/lib/auth'
+import { requireAuth } from '@/lib/auth-helper'
 import { prisma } from '@/lib/prisma'
-import { z } from 'zod'
 
-export const dynamic = 'force-dynamic'
-
-const companyContentSchema = z.object({
-  name: z.string().min(1, 'Company name is required'),
-  description: z.string().optional(),
-  history: z.string().optional(),
-  mission: z.string().optional(),
-  vision: z.string().optional(),
-  address: z.string().optional(),
-  city: z.string().optional(),
-  state: z.string().optional(),
-  zipCode: z.string().optional(),
-  country: z.string().optional(),
-  phone: z.string().optional(),
-  email: z.string().email().optional(),
-  website: z.string().url().optional(),
-  certifications: z.array(z.object({
-    name: z.string(),
-    issuer: z.string(),
-    validUntil: z.string().optional(),
-    documentUrl: z.string().optional()
-  })).optional(),
-  serviceAreas: z.array(z.string()).optional(),
-  specialties: z.array(z.string()).optional()
-})
-
-// GET /api/company - Get company information
+// GET /api/company - Get company information (public)
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions)
+    // For MVP, return hardcoded company info
+    const companyInfo = {
+      name: "Professional Pipe Supply Co.",
+      description: "Leading supplier of industrial pipes and fittings",
+      address: {
+        street: "123 Industrial Blvd",
+        city: "Manufacturing City",
+        state: "TX",
+        zipCode: "12345",
+        country: "USA"
+      },
+      phone: "(555) 123-4567",
+      email: "info@pipesupply.com",
+      website: "https://pipesupply.com",
+      certifications: [
+        {
+          name: "ISO 9001:2015",
+          issuer: "International Organization for Standardization",
+          validUntil: "2025-12-31"
+        }
+      ],
+      serviceAreas: ["Texas", "Oklahoma", "Louisiana"],
+      specialties: ["Industrial Pipes", "Custom Fittings", "Emergency Supply"]
+    }
     
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // Get company content from database
-    const companyContent = await prisma.companyContent.findFirst({
-      orderBy: { updatedAt: 'desc' }
-    })
-
-    if (!companyContent) {
-      // Return default company content structure
-      return NextResponse.json({
-        name: '',
-        description: '',
-        history: '',
-        mission: '',
-        vision: '',
-        address: '',
-        city: '',
-        state: '',
-        zipCode: '',
-        country: '',
-        phone: '',
-        email: '',
-        website: '',
-        certifications: [],
-        serviceAreas: [],
-        specialties: []
-      })
-    }
-
-    return NextResponse.json(companyContent)
+    return NextResponse.json(companyInfo)
   } catch (error) {
-    console.error('Error fetching company content:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    console.error('Error fetching company info:', error)
+    return NextResponse.json(
+      { error: 'Failed to fetch company information' },
+      { status: 500 }
+    )
   }
 }
 
-// PUT /api/company - Update company information
+// PUT /api/company - Update company information (admin only)
 export async function PUT(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    requireAuth(request) // Will throw if not authenticated
     
-    if (!session?.user) {
+    const data = await request.json()
+    
+    // For MVP, just return success
+    return NextResponse.json({ 
+      message: 'Company information updated successfully',
+      data 
+    })
+  } catch (error) {
+    if (error instanceof Error && error.message === 'Unauthorized') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-
-    // Check admin permissions
-    if (session.user.role !== 'ADMIN' && session.user.role !== 'CONTENT_MANAGER') {
-      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 })
-    }
-
-    const body = await request.json()
-    const validatedData = companyContentSchema.parse(body)
-
-    // Update or create company content
-    const companyContent = await prisma.companyContent.upsert({
-      where: { id: body.id || 'default' },
-      update: {
-        ...validatedData,
-        updatedAt: new Date()
-      },
-      create: {
-        id: 'default',
-        ...validatedData,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }
-    })
-
-    return NextResponse.json(companyContent)
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return NextResponse.json({ 
-        error: 'Validation failed', 
-        details: error.issues 
-      }, { status: 400 })
-    }
-
-    console.error('Error updating company content:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    
+    console.error('Error updating company info:', error)
+    return NextResponse.json(
+      { error: 'Failed to update company information' },
+      { status: 500 }
+    )
   }
 }

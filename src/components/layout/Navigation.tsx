@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useSession, signOut } from 'next-auth/react'
 import { usePathname } from 'next/navigation'
 
 interface NavigationItem {
@@ -21,83 +20,70 @@ const navigationItems: NavigationItem[] = [
 
 export default function Navigation() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const { data: session } = useSession()
   const pathname = usePathname()
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen)
   }
 
-  const closeMobileMenu = () => {
-    setIsMobileMenuOpen(false)
-  }
-
-  const isActivePath = (href: string) => {
-    if (!pathname) return false
-    if (href === '/') {
-      return pathname === '/'
-    }
-    return pathname.startsWith(href)
-  }
-
   const handleSignOut = async () => {
-    await signOut({ callbackUrl: '/' })
+    await fetch('/api/logout', { method: 'POST' })
+    window.location.href = '/'
   }
+
+  // Simple check if we're in admin area (for demo purposes)
+  const isAdmin = pathname?.startsWith('/admin')
 
   return (
-    <nav className="bg-white shadow-lg border-b border-gray-200">
+    <nav className="bg-white shadow-lg sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo and Brand */}
+        <div className="flex justify-between h-16">
+          {/* Logo and primary navigation */}
           <div className="flex items-center">
-            <Link 
-              href="/" 
-              className="flex items-center space-x-2 text-xl font-bold text-gray-900 hover:text-blue-600 transition-colors"
-            >
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">PS</span>
-              </div>
-              <span className="hidden sm:block">Pipe Supply Co.</span>
+            <Link href="/" className="flex-shrink-0 flex items-center">
+              <div className="text-2xl font-bold text-blue-600">PipeSupply</div>
             </Link>
+            
+            {/* Desktop Navigation */}
+            <div className="hidden md:ml-8 md:flex md:space-x-8">
+              {navigationItems.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`inline-flex items-center px-1 pt-1 text-sm font-medium transition-all duration-200 hover:scale-105 ${
+                    pathname === item.href
+                      ? 'border-b-2 border-blue-500 text-blue-600'
+                      : 'text-gray-700 hover:text-blue-600 hover:border-b-2 hover:border-blue-300'
+                  }`}
+                  title={item.description}
+                >
+                  {item.name}
+                </Link>
+              ))}
+            </div>
           </div>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            {navigationItems.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
-                  isActivePath(item.href)
-                    ? 'text-blue-600 bg-blue-50 border-b-2 border-blue-600 transform scale-105'
-                    : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50 hover:scale-105 active:scale-95'
-                }`}
-                title={item.description}
-              >
-                {item.name}
-              </Link>
-            ))}
+          {/* Right side navigation */}
+          <div className="hidden md:flex md:items-center md:space-x-4">
             
-            {/* Admin Link for authenticated users */}
-            {session?.user && (
-              <Link
-                href="/admin"
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  isActivePath('/admin')
-                    ? 'text-blue-600 bg-blue-50 border-b-2 border-blue-600'
-                    : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
-                }`}
-              >
-                Admin
-              </Link>
-            )}
+            {/* Admin Link */}
+            <Link
+              href="/admin"
+              className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 hover:scale-105 ${
+                pathname?.startsWith('/admin')
+                  ? 'bg-blue-100 text-blue-700'
+                  : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50'
+              }`}
+            >
+              Admin
+            </Link>
 
             {/* Auth Actions */}
             <div className="flex items-center space-x-4">
-              {session?.user ? (
+              {isAdmin ? (
                 <div className="flex items-center space-x-3">
                   <span className="text-sm text-gray-700">
-                    Welcome, {session.user.name || session.user.email}
+                    Welcome, Admin User
                   </span>
                   <button
                     onClick={handleSignOut}
@@ -108,22 +94,21 @@ export default function Navigation() {
                 </div>
               ) : (
                 <Link
-                  href="/auth/signin"
+                  href="/login"
                   className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-all duration-200 hover:scale-105 active:scale-95 hover:shadow-lg"
                 >
-                  Sign In
+                  Admin Login
                 </Link>
               )}
             </div>
           </div>
 
           {/* Mobile menu button */}
-          <div className="md:hidden">
+          <div className="md:hidden flex items-center">
             <button
               onClick={toggleMobileMenu}
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-blue-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 transition-all duration-200 hover:scale-110 active:scale-95"
-              aria-expanded={isMobileMenuOpen}
-              aria-label="Toggle navigation menu"
+              className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-blue-600 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 transition-all duration-200 hover:scale-105"
+              aria-expanded="false"
             >
               <span className="sr-only">Open main menu</span>
               {/* Hamburger icon */}
@@ -133,14 +118,8 @@ export default function Navigation() {
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
-                aria-hidden="true"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
               {/* Close icon */}
               <svg
@@ -149,87 +128,71 @@ export default function Navigation() {
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
-                aria-hidden="true"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           </div>
         </div>
+      </div>
 
-        {/* Mobile Navigation Menu */}
-        <div className={`md:hidden ${isMobileMenuOpen ? 'block' : 'hidden'}`}>
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-gray-50 rounded-lg mt-2">
-            {navigationItems.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                onClick={closeMobileMenu}
-                className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
-                  isActivePath(item.href)
-                    ? 'text-blue-600 bg-blue-100'
-                    : 'text-gray-700 hover:text-blue-600 hover:bg-gray-100'
-                }`}
-              >
-                <div>
-                  <div className="font-medium">{item.name}</div>
-                  {item.description && (
-                    <div className="text-sm text-gray-500 mt-1">{item.description}</div>
-                  )}
-                </div>
-              </Link>
-            ))}
-            
-            {/* Mobile Admin Link */}
-            {session?.user && (
-              <Link
-                href="/admin"
-                onClick={closeMobileMenu}
-                className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
-                  isActivePath('/admin')
-                    ? 'text-blue-600 bg-blue-100'
-                    : 'text-gray-700 hover:text-blue-600 hover:bg-gray-100'
-                }`}
-              >
-                <div>
-                  <div className="font-medium">Admin</div>
-                  <div className="text-sm text-gray-500 mt-1">Manage products and quotes</div>
-                </div>
-              </Link>
-            )}
+      {/* Mobile menu */}
+      <div className={`md:hidden ${isMobileMenuOpen ? 'block' : 'hidden'}`}>
+        <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t border-gray-200">
+          {navigationItems.map((item) => (
+            <Link
+              key={item.name}
+              href={item.href}
+              className={`block px-3 py-2 text-base font-medium rounded-md transition-colors ${
+                pathname === item.href
+                  ? 'bg-blue-100 text-blue-700'
+                  : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50'
+              }`}
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              {item.name}
+            </Link>
+          ))}
+          
+          {/* Mobile Admin Link */}
+          <Link
+            href="/admin"
+            className={`block px-3 py-2 text-base font-medium rounded-md transition-colors ${
+              pathname?.startsWith('/admin')
+                ? 'bg-blue-100 text-blue-700'
+                : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50'
+            }`}
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            Admin
+          </Link>
+        </div>
 
-            {/* Mobile Auth Actions */}
-            <div className="border-t border-gray-200 pt-4 mt-4">
-              {session?.user ? (
-                <div className="px-3 py-2">
-                  <div className="text-sm text-gray-700 mb-3">
-                    Welcome, {session.user.name || session.user.email}
-                  </div>
-                  <button
-                    onClick={handleSignOut}
-                    className="w-full bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700 transition-colors"
-                  >
-                    Sign Out
-                  </button>
-                </div>
-              ) : (
-                <div className="px-3 py-2">
-                  <Link
-                    href="/auth/signin"
-                    onClick={closeMobileMenu}
-                    className="block w-full bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors text-center"
-                  >
-                    Sign In
-                  </Link>
-                </div>
-              )}
+        {/* Mobile Auth Actions */}
+        <div className="border-t border-gray-200 pt-4 mt-4">
+          {isAdmin ? (
+            <div className="px-3 py-2">
+              <div className="text-sm text-gray-700 mb-3">
+                Welcome, Admin User
+              </div>
+              <button
+                onClick={handleSignOut}
+                className="w-full bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700 transition-colors"
+              >
+                Sign Out
+              </button>
             </div>
-          </div>
+          ) : (
+            <div className="px-3 py-2">
+              <Link
+                href="/login"
+                className="block w-full text-center bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Admin Login
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </nav>

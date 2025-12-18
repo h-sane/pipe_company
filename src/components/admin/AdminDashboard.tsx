@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
+
 import ProductManager from './ProductManager'
 import QuoteManager from './QuoteManager'
 import MediaUploader from './MediaUploader'
@@ -25,7 +25,7 @@ interface ActivityItem {
 }
 
 export default function AdminDashboard() {
-  const { data: session } = useSession()
+
   const [activeTab, setActiveTab] = useState<'overview' | 'products' | 'quotes' | 'media' | 'content'>('overview')
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [loading, setLoading] = useState(true)

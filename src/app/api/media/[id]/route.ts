@@ -1,109 +1,57 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
-import { unlink } from 'fs/promises';
-import { join } from 'path';
-import { existsSync } from 'fs';
+import { NextRequest, NextResponse } from 'next/server'
+import { getSession } from '@/lib/auth-helper'
+import { prisma } from '@/lib/prisma'
 
-export const dynamic = 'force-dynamic'
-
-const UPLOAD_DIR = join(process.cwd(), 'public', 'uploads');
-
-// 1. Updated Type Definition for Next.js 15
-type RouteParams = {
-  params: Promise<{ id: string }>
-}
-
+// GET /api/media/[id] - Get media file info (admin only)
 export async function GET(
-  request: NextRequest,
-  { params }: RouteParams // 2. Applied Promise Type
+  req: NextRequest,
+  { params }: { params: { id: string } }
 ) {
   try {
-    // 3. Await the params before using properties
-    const { id } = await params;
-
-    const media = await prisma.media.findUnique({
-      where: { id } // Used destructured 'id'
-    });
-
-    if (!media) {
-      return NextResponse.json({ error: 'Media not found' }, { status: 404 });
+    const session = getSession(req)
+    if (!session || session.user.role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-
-    return NextResponse.json(media);
-
+    
+    const media = await prisma.media.findUnique({
+      where: { id: params.id }
+    })
+    
+    if (!media) {
+      return NextResponse.json({ error: 'Media not found' }, { status: 404 })
+    }
+    
+    return NextResponse.json(media)
   } catch (error) {
-    console.error('Media fetch error:', error);
+    console.error('Error fetching media:', error)
     return NextResponse.json(
       { error: 'Failed to fetch media' },
       { status: 500 }
-    );
+    )
   }
 }
 
+// DELETE /api/media/[id] - Delete media file (admin only)
 export async function DELETE(
-  request: NextRequest,
-  { params }: RouteParams // Applied Promise Type here too
+  req: NextRequest,
+  { params }: { params: { id: string } }
 ) {
   try {
-    // Await params here as well
-    const { id } = await params;
-
-    // Check authentication
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const session = getSession(req)
+    if (!session || session.user.role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-
-    // Check permissions
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email! },
-      select: { role: true, permissions: true }
-    });
-
-    if (!user || (user.role !== 'ADMIN' && user.role !== 'CONTENT_MANAGER' && !user.permissions.includes('MANAGE_MEDIA'))) {
-      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
-    }
-
-    // Find media record
-    const media = await prisma.media.findUnique({
-      where: { id } // Used destructured 'id'
-    });
-
-    if (!media) {
-      return NextResponse.json({ error: 'Media not found' }, { status: 404 });
-    }
-
-    // Delete files from filesystem
-    const filePath = join(UPLOAD_DIR, media.filename);
-    const thumbnailPath = join(UPLOAD_DIR, `thumb_${media.filename}`);
-
-    try {
-      if (existsSync(filePath)) {
-        await unlink(filePath);
-      }
-      if (existsSync(thumbnailPath)) {
-        await unlink(thumbnailPath);
-      }
-    } catch (fileError) {
-      console.warn('Failed to delete file:', fileError);
-      // Continue with database deletion even if file deletion fails
-    }
-
-    // Delete from database
-    const mediaId = id; // Explicitly capturing id for clarity
+    
     await prisma.media.delete({
-      where: { id: mediaId }
-    });
-
-    return NextResponse.json({ message: 'Media deleted successfully' });
-
+      where: { id: params.id }
+    })
+    
+    return NextResponse.json({ message: 'Media deleted successfully' })
   } catch (error) {
-    console.error('Media deletion error:', error);
+    console.error('Error deleting media:', error)
     return NextResponse.json(
       { error: 'Failed to delete media' },
       { status: 500 }
-    );
+    )
   }
 }

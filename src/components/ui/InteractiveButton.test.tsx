@@ -85,8 +85,8 @@ describe('UI Feedback Responsiveness Property Tests', () => {
         (variant, size, text, isLoading) => {
           const { container } = render(
             <InteractiveButton
-              variant={variant}
-              size={size}
+              variant={variant as 'primary' | 'secondary' | 'ghost' | 'danger'}
+              size={size as 'sm' | 'md' | 'lg'}
               loading={isLoading}
             >
               {text}
@@ -126,8 +126,8 @@ describe('UI Feedback Responsiveness Property Tests', () => {
         (size, color, text) => {
           const { container } = render(
             <LoadingIndicator 
-              size={size} 
-              color={color} 
+              size={size as 'sm' | 'md' | 'lg'} 
+              color={color as 'blue' | 'white' | 'gray'} 
               text={text || undefined} 
             />
           )
@@ -143,13 +143,13 @@ describe('UI Feedback Responsiveness Property Tests', () => {
             lg: 'w-8 h-8'
           }
           const hasCorrectSize = spinner ? 
-            sizeClasses[size].split(' ').every(cls => spinner.classList.contains(cls)) : 
+            sizeClasses[size as keyof typeof sizeClasses].split(' ').every((cls: string) => spinner.classList.contains(cls)) : 
             false
           
           // Property: Text should be displayed if provided
           const textElement = container.querySelector('span')
           const textDisplayedCorrectly = text ? 
-            (textElement && textElement.textContent === text) : 
+            Boolean(textElement && textElement.textContent === text) : 
             true
           
           // Property: Should have proper ARIA attributes
@@ -174,7 +174,7 @@ describe('UI Feedback Responsiveness Property Tests', () => {
           const { container } = render(
             <ProgressBar 
               progress={progress} 
-              color={color}
+              color={color as 'blue' | 'green' | 'red'}
               showPercentage={showPercentage}
             />
           )
@@ -304,7 +304,7 @@ describe('UI Feedback Responsiveness Property Tests', () => {
           const { container } = render(
             <Toast
               id="test-toast"
-              type={type}
+              type={type as 'success' | 'error' | 'warning' | 'info'}
               title={title}
               message={message || undefined}
               onClose={mockOnClose}
@@ -331,7 +331,7 @@ describe('UI Feedback Responsiveness Property Tests', () => {
             warning: 'bg-yellow-50',
             info: 'bg-blue-50'
           }
-          const hasTypeStyle = toast?.className.includes(typeStyles[type]) || false
+          const hasTypeStyle = toast?.className.includes(typeStyles[type as keyof typeof typeStyles]) || false
           
           // Property: Toast should have close button
           const closeButton = container.querySelector('button[aria-label*="Close"]')

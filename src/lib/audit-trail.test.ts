@@ -29,20 +29,20 @@ const AvailabilityStatus = {
 // Product data generator for property-based testing
 const productDataGenerator = fc.record({
   id: fc.string({ minLength: 1 }),
-  name: fc.string({ minLength: 1 }).filter(s => s.trim().length > 0),
+  name: fc.string({ minLength: 1 }).filter((s: string): s is string => s.trim().length > 0),
   description: fc.string(),
   category: fc.constantFrom(...Object.values(ProductCategory)),
-  brand: fc.string({ minLength: 1 }).filter(s => s.trim().length > 0),
-  diameter: fc.string({ minLength: 1 }).filter(s => s.trim().length > 0),
-  length: fc.string({ minLength: 1 }).filter(s => s.trim().length > 0),
-  material: fc.string({ minLength: 1 }).filter(s => s.trim().length > 0),
-  pressureRating: fc.string({ minLength: 1 }).filter(s => s.trim().length > 0),
-  temperature: fc.string({ minLength: 1 }).filter(s => s.trim().length > 0),
+  brand: fc.string({ minLength: 1 }).filter((s: string): s is string => s.trim().length > 0),
+  diameter: fc.string({ minLength: 1 }).filter((s: string): s is string => s.trim().length > 0),
+  length: fc.string({ minLength: 1 }).filter((s: string): s is string => s.trim().length > 0),
+  material: fc.string({ minLength: 1 }).filter((s: string): s is string => s.trim().length > 0),
+  pressureRating: fc.string({ minLength: 1 }).filter((s: string): s is string => s.trim().length > 0),
+  temperature: fc.string({ minLength: 1 }).filter((s: string): s is string => s.trim().length > 0),
   standards: fc.array(fc.string()),
   applications: fc.array(fc.string()),
   basePrice: fc.float({ min: Math.fround(0.01), max: Math.fround(10000) }),
   currency: fc.constant('USD'),
-  pricePerUnit: fc.string({ minLength: 1 }).filter(s => s.trim().length > 0),
+  pricePerUnit: fc.string({ minLength: 1 }).filter((s: string): s is string => s.trim().length > 0),
   availability: fc.constantFrom(...Object.values(AvailabilityStatus)),
   createdAt: fc.date(),
   updatedAt: fc.date()
@@ -53,8 +53,8 @@ const userIdGenerator = fc.string({ minLength: 1 })
 
 // Metadata generator
 const metadataGenerator = fc.record({
-  ipAddress: fc.option(fc.ipV4()),
-  userAgent: fc.option(fc.string())
+  ipAddress: fc.option(fc.ipV4(), { nil: undefined }),
+  userAgent: fc.option(fc.string(), { nil: undefined })
 })
 
 describe('Audit Trail Property Tests', () => {
@@ -79,7 +79,7 @@ describe('Audit Trail Property Tests', () => {
           )
           
           // Property 1: Audit entry should have a unique ID
-          const hasValidId = auditEntry.id && typeof auditEntry.id === 'string' && auditEntry.id.length > 0
+          const hasValidId = Boolean(auditEntry.id && typeof auditEntry.id === 'string' && auditEntry.id.length > 0)
           
           // Property 2: Audit entry should record the product ID
           const hasCorrectProductId = auditEntry.productId === productData.id
@@ -102,13 +102,13 @@ describe('Audit Trail Property Tests', () => {
             // All other fields should be in changes with from=null
             return auditEntry.changes.hasOwnProperty(key) && 
                    auditEntry.changes[key].from === null &&
-                   JSON.stringify(auditEntry.changes[key].to) === JSON.stringify(productData[key])
+                   JSON.stringify(auditEntry.changes[key].to) === JSON.stringify((productData as any)[key])
           })
           
           // Property 7: Metadata should be preserved if provided
           const metadataPreserved = 
-            (metadata.ipAddress === null || auditEntry.ipAddress === metadata.ipAddress) &&
-            (metadata.userAgent === null || auditEntry.userAgent === metadata.userAgent)
+            (metadata.ipAddress === undefined || auditEntry.ipAddress === metadata.ipAddress) &&
+            (metadata.userAgent === undefined || auditEntry.userAgent === metadata.userAgent)
           
           return hasValidId && 
                  hasCorrectProductId && 
@@ -152,8 +152,8 @@ describe('Audit Trail Property Tests', () => {
           
           // Property 2: Only changed fields should be in changes
           const onlyChangedFieldsRecorded = Object.keys(auditEntry.changes).every(key => {
-            const oldValue = oldData[key]
-            const newValue = updatedNewData[key]
+            const oldValue = (oldData as any)[key]
+            const newValue = (updatedNewData as any)[key]
             
             // For arrays, compare stringified versions
             if (Array.isArray(oldValue) && Array.isArray(newValue)) {
@@ -170,8 +170,8 @@ describe('Audit Trail Property Tests', () => {
               return true // These are excluded from changes
             }
             
-            const oldValue = oldData[key]
-            const newValue = updatedNewData[key]
+            const oldValue = (oldData as any)[key]
+            const newValue = (updatedNewData as any)[key]
             
             // Check if values are different
             let isDifferent = false
@@ -235,7 +235,7 @@ describe('Audit Trail Property Tests', () => {
             }
             // All other fields should be in changes with to=null
             return auditEntry.changes.hasOwnProperty(key) && 
-                   JSON.stringify(auditEntry.changes[key].from) === JSON.stringify(productData[key]) &&
+                   JSON.stringify(auditEntry.changes[key].from) === JSON.stringify((productData as any)[key]) &&
                    auditEntry.changes[key].to === null
           })
           
@@ -341,14 +341,14 @@ describe('Audit Trail Property Tests', () => {
           )
           
           // Property 1: Reconstructing new state from old state + changes should match new data
-          const reconstructedData = { ...oldData }
+          const reconstructedData = { ...oldData } as any
           Object.entries(auditEntry.changes).forEach(([key, change]) => {
             reconstructedData[key] = change.to
           })
           
           // Verify all changed fields match
           const reconstructionMatches = Object.keys(auditEntry.changes).every(key => {
-            return JSON.stringify(reconstructedData[key]) === JSON.stringify(updatedNewData[key])
+            return JSON.stringify(reconstructedData[key]) === JSON.stringify((updatedNewData as any)[key])
           })
           
           // Property 2: Unchanged fields should remain the same
@@ -357,7 +357,7 @@ describe('Audit Trail Property Tests', () => {
             if (auditEntry.changes.hasOwnProperty(key)) return true // This field changed
             
             // This field didn't change, so it should be the same in both old and new
-            return JSON.stringify(oldData[key]) === JSON.stringify(updatedNewData[key])
+            return JSON.stringify((oldData as any)[key]) === JSON.stringify((updatedNewData as any)[key])
           })
           
           return reconstructionMatches && unchangedFieldsPreserved

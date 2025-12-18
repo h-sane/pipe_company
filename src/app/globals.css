@@ -69,3 +69,38 @@ body {
     box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
   }
 }
+
+/* Fix text visibility in form inputs and textareas */
+input[type="text"],
+input[type="email"], 
+input[type="password"],
+input[type="tel"],
+input[type="url"],
+input[type="number"],
+input[type="date"],
+input[type="search"],
+textarea,
+select {
+  color: #374151 !important; /* Force dark gray text */
+  background-color: #ffffff !important; /* Force white background */
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus, 
+input[type="password"]:focus,
+input[type="tel"]:focus,
+input[type="url"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus,
+input[type="search"]:focus,
+textarea:focus,
+select:focus {
+  color: #374151 !important; /* Maintain dark gray text on focus */
+}
+
+/* Ensure placeholder text is visible */
+input::placeholder,
+textarea::placeholder {
+  color: #9CA3AF !important; /* Light gray placeholder */
+  opacity: 1;
+}

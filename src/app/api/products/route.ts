@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
     const product = await prisma.product.create({
       data: {
         ...data,
-        createdBy: session.user.id
+        basePrice: Number(data.basePrice)
       },
       include: {
         images: true,

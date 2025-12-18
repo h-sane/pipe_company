@@ -24,13 +24,31 @@ const nextConfig = {
   },
   compress: true,
   reactStrictMode: true,
-  // FIX: More aggressive webpack ignore rule
+  // FIX: Use Regex to match the missing CSS file regardless of its path
   webpack: (config, { isServer }) => {
     if (isServer) {
-      // 1. Ignore the specific relative import used by NextAuth
+      config.resolve.alias = {
+        ...config.resolve.alias,
+      };
+      
+      // Ignore any import ending in default-stylesheet.css
+      config.ignoreWarnings = [{ module: /default-stylesheet\.css$/ }];
+      
+      // Force it to resolve to false (empty module)
       config.resolve.alias['./default-stylesheet.css'] = false;
-      // 2. Also try to ignore it by absolute resolution to be safe
-      config.resolve.alias['default-stylesheet.css'] = false;
+      
+      // Fallback: If the above alias fails, this plugin replaces the module request
+      config.plugins.push(new (class {
+        apply(compiler) {
+          compiler.hooks.normalModuleFactory.tap("IgnoreCssPlugin", (nmf) => {
+            nmf.hooks.beforeResolve.tap("IgnoreCssPlugin", (result) => {
+              if (result.request.endsWith("default-stylesheet.css")) {
+                result.request = "false";
+              }
+            });
+          });
+        }
+      })());
     }
     return config;
   },

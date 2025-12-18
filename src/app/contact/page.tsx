@@ -1,4 +1,5 @@
 import ContactPage from '@/components/company/ContactPage'
+import Layout from '@/components/layout/Layout'
 
 export const metadata = {
   title: 'Contact Us - Pipe Supply Co.',
@@ -6,5 +7,14 @@ export const metadata = {
 }
 
 export default function Contact() {
-  return <ContactPage />
+  const breadcrumbItems = [
+    { name: 'Home', href: '/' },
+    { name: 'Contact Us', href: '/contact', current: true }
+  ]
+
+  return (
+    <Layout breadcrumbItems={breadcrumbItems}>
+      <ContactPage />
+    </Layout>
+  )
 }

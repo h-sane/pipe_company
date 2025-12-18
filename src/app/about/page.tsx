@@ -1,4 +1,5 @@
 import CompanyShowcase from '@/components/company/CompanyShowcase'
+import Layout from '@/components/layout/Layout'
 
 export const metadata = {
   title: 'About Us - Pipe Supply Co.',
@@ -6,5 +7,14 @@ export const metadata = {
 }
 
 export default function About() {
-  return <CompanyShowcase />
+  const breadcrumbItems = [
+    { name: 'Home', href: '/' },
+    { name: 'About Us', href: '/about', current: true }
+  ]
+
+  return (
+    <Layout breadcrumbItems={breadcrumbItems}>
+      <CompanyShowcase />
+    </Layout>
+  )
 }

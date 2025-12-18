@@ -102,7 +102,7 @@ export default function Home() {
                 href={category.href}
                 className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-all duration-200 hover:scale-105 hover:border-blue-300 group"
               >
-                <h3 className="text-lg font-semibold mb-2 group-hover:text-blue-600 transition-colors">{category.name}</h3>
+                <h3 className="text-lg font-semibold mb-2 text-gray-900 group-hover:text-blue-600 transition-colors">{category.name}</h3>
                 <p className="text-gray-600 text-sm">{category.description}</p>
               </Link>
             ))}

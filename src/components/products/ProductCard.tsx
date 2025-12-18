@@ -74,7 +74,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       <div className="p-4">
         <div className="flex justify-between items-start mb-2">
           <h3 className="text-lg font-semibold text-gray-900 line-clamp-2">
-            <Link href={`/products/${product.id}`} className="hover:text-blue-600">
+            <Link href={`/products/${product.id}`} className="text-gray-900 hover:text-blue-600 transition-colors">
               {product.name}
             </Link>
           </h3>

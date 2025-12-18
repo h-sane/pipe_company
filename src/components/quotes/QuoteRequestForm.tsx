@@ -278,7 +278,7 @@ export default function QuoteRequestForm({
                 id="customerName"
                 value={formData.customerName}
                 onChange={(e) => handleInputChange('customerName', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                className={`w-full px-3 py-2 border rounded-md text-gray-900 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                   errors.customerName ? 'border-red-500' : 'border-gray-300'
                 }`}
                 placeholder="Enter your full name"
@@ -297,7 +297,7 @@ export default function QuoteRequestForm({
                 id="customerEmail"
                 value={formData.customerEmail}
                 onChange={(e) => handleInputChange('customerEmail', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                className={`w-full px-3 py-2 border rounded-md text-gray-900 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                   errors.customerEmail ? 'border-red-500' : 'border-gray-300'
                 }`}
                 placeholder="Enter your email address"
@@ -316,7 +316,7 @@ export default function QuoteRequestForm({
                 id="customerPhone"
                 value={formData.customerPhone}
                 onChange={(e) => handleInputChange('customerPhone', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                className={`w-full px-3 py-2 border rounded-md text-gray-900 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                   errors.customerPhone ? 'border-red-500' : 'border-gray-300'
                 }`}
                 placeholder="Enter your phone number"
@@ -335,7 +335,7 @@ export default function QuoteRequestForm({
                 id="company"
                 value={formData.company}
                 onChange={(e) => handleInputChange('company', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                className={`w-full px-3 py-2 border rounded-md text-gray-900 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                   errors.company ? 'border-red-500' : 'border-gray-300'
                 }`}
                 placeholder="Enter your company name"
@@ -360,7 +360,7 @@ export default function QuoteRequestForm({
                 id="address"
                 value={formData.address}
                 onChange={(e) => handleInputChange('address', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                className={`w-full px-3 py-2 border rounded-md text-gray-900 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                   errors.address ? 'border-red-500' : 'border-gray-300'
                 }`}
                 placeholder="Enter your street address"
@@ -380,7 +380,7 @@ export default function QuoteRequestForm({
                   id="city"
                   value={formData.city}
                   onChange={(e) => handleInputChange('city', e.target.value)}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  className={`w-full px-3 py-2 border rounded-md text-gray-900 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                     errors.city ? 'border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="Enter city"
@@ -399,7 +399,7 @@ export default function QuoteRequestForm({
                   id="state"
                   value={formData.state}
                   onChange={(e) => handleInputChange('state', e.target.value)}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  className={`w-full px-3 py-2 border rounded-md text-gray-900 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                     errors.state ? 'border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="Enter state"
@@ -418,7 +418,7 @@ export default function QuoteRequestForm({
                   id="zipCode"
                   value={formData.zipCode}
                   onChange={(e) => handleInputChange('zipCode', e.target.value)}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  className={`w-full px-3 py-2 border rounded-md text-gray-900 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                     errors.zipCode ? 'border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="Enter ZIP code"
@@ -437,7 +437,7 @@ export default function QuoteRequestForm({
                 id="country"
                 value={formData.country}
                 onChange={(e) => handleInputChange('country', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                className={`w-full px-3 py-2 border rounded-md text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                   errors.country ? 'border-red-500' : 'border-gray-300'
                 }`}
               >
@@ -496,7 +496,7 @@ export default function QuoteRequestForm({
                     type="text"
                     value={product.productId}
                     onChange={(e) => handleProductChange(index, 'productId', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Enter product ID"
                     readOnly={!!preSelectedProduct && index === 0}
                   />
@@ -510,7 +510,7 @@ export default function QuoteRequestForm({
                     type="text"
                     value={product.productName}
                     onChange={(e) => handleProductChange(index, 'productName', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Product name"
                     readOnly={!!preSelectedProduct && index === 0}
                   />
@@ -525,7 +525,7 @@ export default function QuoteRequestForm({
                     min="1"
                     value={product.quantity}
                     onChange={(e) => handleProductChange(index, 'quantity', parseInt(e.target.value) || 1)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
 
@@ -537,7 +537,7 @@ export default function QuoteRequestForm({
                     type="text"
                     value={product.notes}
                     onChange={(e) => handleProductChange(index, 'notes', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Special requirements or notes"
                   />
                 </div>
@@ -560,7 +560,7 @@ export default function QuoteRequestForm({
             rows={4}
             value={formData.message}
             onChange={(e) => handleInputChange('message', e.target.value)}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+            className={`w-full px-3 py-2 border rounded-md text-gray-900 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
               errors.message ? 'border-red-500' : 'border-gray-300'
             }`}
             placeholder="Please provide any additional details about your requirements..."

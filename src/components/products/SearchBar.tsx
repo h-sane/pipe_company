@@ -35,7 +35,7 @@ export default function SearchBar({ value, onChange, placeholder = "Search..." }
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         placeholder={placeholder}
-        className={`block w-full pl-10 pr-3 py-3 border rounded-md text-base placeholder-gray-500 focus-ring smooth-transition touch-target ${
+        className={`block w-full pl-10 pr-3 py-3 border rounded-md text-base text-gray-900 placeholder-gray-500 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 ${
           isFocused ? 'border-blue-500 shadow-lg' : 'border-gray-300'
         }`}
         style={{ fontSize: '16px' }} // Prevents zoom on iOS

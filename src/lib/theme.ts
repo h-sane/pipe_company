@@ -77,3 +77,24 @@ export const getCardClass = () => {
 export const getInfoBoxClass = () => {
   return theme.components.infoBox
 }
+
+// Input field styling utility
+export const getInputClass = (hasError: boolean = false) => {
+  const baseClass = 'w-full px-3 py-2 border rounded-md text-gray-900 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200'
+  const errorClass = hasError ? 'border-red-500' : 'border-gray-300'
+  return `${baseClass} ${errorClass}`
+}
+
+// Text area styling utility
+export const getTextAreaClass = (hasError: boolean = false) => {
+  const baseClass = 'w-full px-3 py-2 border rounded-md text-gray-900 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 resize-vertical'
+  const errorClass = hasError ? 'border-red-500' : 'border-gray-300'
+  return `${baseClass} ${errorClass}`
+}
+
+// Select dropdown styling utility
+export const getSelectClass = (hasError: boolean = false) => {
+  const baseClass = 'w-full px-3 py-2 border rounded-md text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200'
+  const errorClass = hasError ? 'border-red-500' : 'border-gray-300'
+  return `${baseClass} ${errorClass}`
+}

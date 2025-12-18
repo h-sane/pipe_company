@@ -65,18 +65,26 @@ export async function POST(req: NextRequest) {
     
     const data = await req.json()
     
-    const product = await prisma.product.create({
-      data: {
-        ...data,
-        basePrice: Number(data.basePrice)
-      },
-      include: {
-        images: true,
-        documents: true
-      }
-    })
-    
-    return NextResponse.json(product, { status: 201 })
+    try {
+      const product = await prisma.product.create({
+        data: {
+          ...data,
+          basePrice: Number(data.basePrice)
+        },
+        include: {
+          images: true,
+          documents: true
+        }
+      })
+      
+      return NextResponse.json(product, { status: 201 })
+    } catch (err) {
+      console.error("PRODUCT CREATE ERROR:", err)
+      return NextResponse.json(
+        { error: String(err) },
+        { status: 500 }
+      )
+    }
   } catch (error) {
     console.error('Error creating product:', error)
     return NextResponse.json(

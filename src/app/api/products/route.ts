@@ -57,6 +57,7 @@ export async function GET(req: NextRequest) {
 
 // POST /api/products - Create product (admin only)
 export async function POST(req: NextRequest) {
+  console.log("STEP 1: request entered")
   try {
     const session = getSession(req)
     if (!session || session.user.role !== 'ADMIN') {
@@ -64,9 +65,15 @@ export async function POST(req: NextRequest) {
     }
     
     const data = await req.json()
+    console.log("DB HOST:", process.env.DATABASE_URL?.split("@")[1])
+    console.log("STEP 2: before prisma import")
+    const { PrismaClient } = require('@prisma/client')
+    const prismaClient = new PrismaClient()
+    console.log("STEP 3: prisma client created")
+    console.log("STEP 4: before product.create")
     
     try {
-      const product = await prisma.product.create({
+      const product = await prismaClient.product.create({
         data: {
           ...data,
           basePrice: Number(data.basePrice)
